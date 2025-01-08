@@ -1,0 +1,89 @@
+
+
+@font-face {
+    font-family: 'makota';
+    src: url('../fonts/makota.bold.ttf') format('truetype');
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 50px;
+}
+
+.logo h1 {
+    font-size: 30px;
+
+ 
+}
+
+.navitems {
+    display: flex;
+    gap: 5px;
+}
+
+.navitems li{
+    list-style-type: none;
+    display: inline;
+    margin-right: 20px;
+    cursor: pointer;
+    transition: text-decoration 0.3s ease; 
+    
+}
+
+.navitems li:hover {
+    text-decoration: underline;
+    text-decoration-color: white; 
+    text-underline-offset: 4px;
+}
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 50px;
+    margin-top: 60px;
+    letter-spacing: 2px;
+    
+}
+
+.heroleft {
+    margin-left: 50px;
+    max-width: 500px;
+    flex-grow: 0; 
+    flex-shrink: 0; 
+    
+}
+
+.heroright{
+    margin-right: 50px;
+    
+   
+}
+
+.headerr{
+    margin-bottom: 30px;
+    font-size: 40px;
+}
+
+.herocontent{
+    margin-bottom: 40px;
+    font-size: 20px;
+    line-height: 30px;
+}
+
+.hero button {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 15px 30px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.hero button:hover {
+    background-color: #0C0C0C;
+    color: #ffffff;
+}
