@@ -17,6 +17,8 @@ export default function Landingpage() {
   const [deliveryPersons, setDeliveryPersons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("stores");
+  const [actionLoading, setActionLoading] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +28,10 @@ export default function Landingpage() {
           axios.get("http://192.168.1.30:8080/api/auth/admin/users"),
           axios.get("http://192.168.1.30:8080/api/auth/admin/delivery-persons"),
         ]);
+
+        console.log("Fetched stores:", storesRes.data); 
+        console.log("Fetched users:", usersRes.data); 
+        console.log("Fetched delivery persons:", deliveryRes.data);   
 
         setStores(storesRes.data);
         setUsers(usersRes.data);
@@ -61,6 +67,72 @@ export default function Landingpage() {
     },
   ];
 
+  const handleButtonLoading = (storeId, isLoading) => {
+    setButtonLoading((prev) => ({ ...prev, [storeId]: isLoading }));
+  };
+
+  const handleVerifyStore = async (storeId) => {
+    if (!storeId) {
+      console.error("Store ID is undefined or invalid");
+      return;
+    }
+    handleButtonLoading(storeId, true);
+    setActionLoading(true);
+    try {
+      await axios.put(
+        `http://192.168.1.30:8080/api/auth/admin/verifyStore/${storeId}`,
+        {
+          verificationStatus: "VERIFIED",
+        }
+      );
+
+      setStores((prevStores) =>
+        prevStores.map((store) =>
+          store.id === storeId
+            ? { ...store, verificationStatus: "VERIFIED" }
+            : store
+        )
+      );
+      console.log(`Store ${storeId} verified successfully`);
+    } catch (error) {
+      console.error(`Error verifying store ${storeId}:`, error);
+    } finally {
+      handleButtonLoading(storeId, false);
+      setActionLoading(false);
+    }
+  };
+
+  const handleRevokeVerification = async (storeId) => {
+    if (!storeId) {
+      console.error("Store ID is undefined or invalid");
+      return;
+    }
+    handleButtonLoading(storeId, true);
+    setActionLoading(true);
+    try {
+      await axios.put(
+        `http://192.168.1.30:8080/api/auth/admin/verifyStore/${storeId}`,
+        {
+          verificationStatus: "NOT_VERIFIED",
+        }
+      );
+
+      setStores((prevStores) =>
+        prevStores.map((store) =>
+          store.id ===storeId
+            ? { ...store, verificationStatus: "NOT_VERIFIED" }
+            : store
+        )
+      );
+      console.log(`Store ${storeId} verification revoked successfully`);
+    } catch (error) {
+      console.error(`Error revoking verification for store ${storeId}:`, error);
+    } finally {
+      handleButtonLoading(storeId, false);
+      setActionLoading(false);
+    }
+  };
+
   return (
     <div className="dashboard">
       <nav className="nav">
@@ -80,8 +152,7 @@ export default function Landingpage() {
 
         {loading ? (
           <div className="loader-container">
-           <CircularProgress sx={{ color: "#000000" }} />
-
+            <CircularProgress sx={{ color: "#000000" }} />
           </div>
         ) : (
           <>
@@ -90,7 +161,7 @@ export default function Landingpage() {
                 <div key={card.title} className="stat-card">
                   <div className="stat-header">
                     <span className="stat-title">{card.title}</span>
-                    <card.icon size={16} />
+                    <card.icon size={16} /> {/* Corrected usage */}
                   </div>
                   <div className="stat-value">{card.value}</div>
                   <p className="stat-description">{card.description}</p>
@@ -134,7 +205,9 @@ export default function Landingpage() {
                         <th>Store Name</th>
                         <th>Contact</th>
                         <th>Address</th>
+                        <th>license No</th>
                         <th>Status</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -143,8 +216,40 @@ export default function Landingpage() {
                           <td>{store.storeName}</td>
                           <td>{store.contactNo}</td>
                           <td>{store.storeAddress}</td>
+                          <td>{store.licenseNo}</td>
                           <td>
-                            <span className="status-badge active">open</span>
+                            <span
+                              className={`status-badge ${
+                                store.verificationStatus === "VERIFIED"
+                                  ? "active"
+                                  : "inactive"
+                              }`}
+                            >
+                              {store.verificationStatus || "NOT_VERIFIED"}
+                            </span>
+                          </td>
+                          <td>
+                          <button
+                            className={`verify-button ${
+                              store.verificationStatus === "VERIFIED"
+                                ? "revoke"
+                                : "" 
+                            }`}
+                            onClick={() =>
+                              store.verificationStatus === "VERIFIED"
+                                ? handleRevokeVerification(store.storeId)
+                                : handleVerifyStore(store.storeId)
+                            }
+                            disabled={buttonLoading[store.storeId]} // Disable button during loading
+                          >
+                            {buttonLoading[store.storeId] ? (
+                              <CircularProgress size={16} sx={{ color: "#fff" }} />
+                            ) : store.verificationStatus === "VERIFIED" ? (
+                              "Revoke Verification"
+                            ) : (
+                              "Verify"
+                            )}
+                          </button>
                           </td>
                         </tr>
                       ))}
@@ -163,7 +268,6 @@ export default function Landingpage() {
                         <th>Phone</th>
                         <th>Address</th>
                         <th>Role</th>
-                        {/* <th>Join Date</th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -174,7 +278,6 @@ export default function Landingpage() {
                           <td>{user.phone}</td>
                           <td>{user.address}</td>
                           <td>{user.role}</td>
-                          {/* <td>{new Date(user.createdAt).toLocaleDateString()}</td> */}
                         </tr>
                       ))}
                     </tbody>

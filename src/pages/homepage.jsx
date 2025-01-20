@@ -24,7 +24,7 @@ export default function Homepage() {
       <div className="hero">
         <div className="heroleft">
             <h1 className="headerr">Get Medicines at your Doorstep</h1>
-            <p className="herocontent">e-pharma is revolutionizing the way healthcare is delivered. Our mission is to create a digital platform that connects patients with the best doctors and pharmacies.</p>
+            <p className="herocontent">e-pharma is revolutionizing the way healthcare is delivered. Our mission is to create a digital platform that connects patients with the pharmacies.</p>
            
         </div>
         <div className="heroright">
