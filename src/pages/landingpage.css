@@ -237,6 +237,13 @@
     background-color: #ffffff;
     color: #1fdf1c;
   }
+
+  
+  .status-badge.inactive {
+    background-color: #ffffff;
+    color: #df1c1c;
+  }
+  
   
   .status-badge.available {
     background-color: #7caff2;
@@ -260,8 +267,18 @@
     cursor: not-allowed;
   }
 
-  .verify-button.revoke {
-    background-color: rgb(212, 11, 11);
-    color: white;
-  }
-  
+.delete-button{
+  width: 100px;
+  height: 45px;
+  font-family: 'Montserrat', sans-serif;
+  background-color: #f10e0e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btns{
+  display: flex;
+  gap: 10px;
+}

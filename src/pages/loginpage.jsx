@@ -14,12 +14,12 @@ function Form({ option }) {
 
   const handleSubmit = async (evt) => {
     evt.preventDefault();
-    setLoading(true); // Show loader
+    setLoading(true); 
     try {
       let response;
       if (option === 1) {
         // Sign in
-        response = await axios.post('http://192.168.1.30:8080/api/auth/admin/login', { email, password });
+        response = await axios.post('http://192.168.1.48:8080/api/auth/admin/login', { email, password });
       } else if (option === 2) {
         // Sign up
         response = await axios.post('/api/register', { email, password, repeatPassword });

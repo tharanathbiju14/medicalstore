@@ -11,6 +11,8 @@ import {
 import CircularProgress from "@mui/material/CircularProgress";
 import "./landingpage.css";
 
+const BASE_URL = "http://192.168.1.48:8080/api/auth/admin";
+
 export default function Landingpage() {
   const [stores, setStores] = useState([]);
   const [users, setUsers] = useState([]);
@@ -24,14 +26,14 @@ export default function Landingpage() {
     const fetchData = async () => {
       try {
         const [storesRes, usersRes, deliveryRes] = await Promise.all([
-          axios.get("http://192.168.1.30:8080/api/auth/admin/allStores"),
-          axios.get("http://192.168.1.30:8080/api/auth/admin/users"),
-          axios.get("http://192.168.1.30:8080/api/auth/admin/delivery-persons"),
+          axios.get(`${BASE_URL}/allStores`),
+          axios.get(`${BASE_URL}/users`),
+          axios.get(`${BASE_URL}/delivery-persons`),
         ]);
 
-        console.log("Fetched stores:", storesRes.data); 
-        console.log("Fetched users:", usersRes.data); 
-        console.log("Fetched delivery persons:", deliveryRes.data);   
+        console.log("Fetched stores:", storesRes.data);
+        console.log("Fetched users:", usersRes.data);
+        console.log("Fetched delivery persons:", deliveryRes.data);
 
         setStores(storesRes.data);
         setUsers(usersRes.data);
@@ -79,12 +81,9 @@ export default function Landingpage() {
     handleButtonLoading(storeId, true);
     setActionLoading(true);
     try {
-      await axios.put(
-        `http://192.168.1.30:8080/api/auth/admin/verifyStore/${storeId}`,
-        {
-          verificationStatus: "VERIFIED",
-        }
-      );
+      await axios.put(`${BASE_URL}/verifyStore/${storeId}`, {
+        verificationStatus: "VERIFIED",
+      });
 
       setStores((prevStores) =>
         prevStores.map((store) =>
@@ -94,6 +93,7 @@ export default function Landingpage() {
         )
       );
       console.log(`Store ${storeId} verified successfully`);
+      window.location.reload();
     } catch (error) {
       console.error(`Error verifying store ${storeId}:`, error);
     } finally {
@@ -110,26 +110,135 @@ export default function Landingpage() {
     handleButtonLoading(storeId, true);
     setActionLoading(true);
     try {
-      await axios.put(
-        `http://192.168.1.30:8080/api/auth/admin/verifyStore/${storeId}`,
-        {
-          verificationStatus: "NOT_VERIFIED",
-        }
-      );
+      await axios.put(`${BASE_URL}/revokeVerifyStore/${storeId}`, {
+        verificationStatus: "NOT_VERIFIED",
+      });
 
       setStores((prevStores) =>
         prevStores.map((store) =>
-          store.id ===storeId
+          store.id === storeId
             ? { ...store, verificationStatus: "NOT_VERIFIED" }
             : store
         )
       );
       console.log(`Store ${storeId} verification revoked successfully`);
+      window.location.reload();
     } catch (error) {
       console.error(`Error revoking verification for store ${storeId}:`, error);
     } finally {
       handleButtonLoading(storeId, false);
       setActionLoading(false);
+    }
+  };
+
+  const handleVerifyperson = async (deliveryPersonId) => {
+    if (!deliveryPersonId) {
+      console.error("Delivery Person ID is undefined or invalid");
+      return;
+    }
+    handleButtonLoading(deliveryPersonId, true);
+    setActionLoading(true);
+    try {
+      await axios.put(`${BASE_URL}/verifyDeliveryPerson/${deliveryPersonId}`, {
+        verificationStatus: "VERIFIED",
+      });
+
+      setDeliveryPersons((prevDeliveryPersons) =>
+        prevDeliveryPersons.map((person) =>
+          person.deliveryPersonId === deliveryPersonId
+            ? { ...person, verificationStatus: "VERIFIED" }
+            : person
+        )
+      );
+      console.log(`Delivery Person ${deliveryPersonId} verified successfully`);
+    } catch (error) {
+      console.error(
+        `Error verifying delivery person ${deliveryPersonId}:`,
+        error
+      );
+    } finally {
+      handleButtonLoading(deliveryPersonId, false);
+      setActionLoading(false);
+      // window.location.reload();
+    }
+  };
+
+  const handleRevokepersonVerification = async (deliveryPersonId) => {
+    if (!deliveryPersonId) {
+      console.error("Delivery Person ID is undefined or invalid");
+      return;
+    }
+    handleButtonLoading(deliveryPersonId, true);
+    setActionLoading(true);
+    try {
+      await axios.put(`${BASE_URL}/revokeDeliveryPerson/${deliveryPersonId}`, {
+        verificationStatus: "NOT_VERIFIED",
+      });
+
+      setDeliveryPersons((prevDeliveryPersons) =>
+        prevDeliveryPersons.map((person) =>
+          person.deliveryPersonId === deliveryPersonId
+            ? { ...person, verificationStatus: "NOT_VERIFIED" }
+            : person
+        )
+      );
+      console.log(
+        `Delivery Person ${deliveryPersonId} verification revoked successfully`
+      );
+    } catch (error) {
+      console.error(
+        `Error revoking verification for delivery person ${deliveryPersonId}:`,
+        error
+      );
+    } finally {
+      handleButtonLoading(deliveryPersonId, false);
+      setActionLoading(false);
+      // window.location.reload();
+    }
+  };
+
+  const handleDeleteStore = async (storeId) => {
+    if (!storeId) {
+      console.error("Store ID is undefined or invalid");
+      return;
+    }
+    handleButtonLoading(storeId, true);
+    setActionLoading(true);
+    try {
+      await axios.delete(`${BASE_URL}/removeStore/${storeId}`);
+
+      setStores((prevStores) =>
+        prevStores.filter((store) => store.id !== storeId)
+      );
+      console.log(`Store ${storeId} deleted successfully`);
+    } catch (error) {
+      console.error(`Error deleting store ${storeId}:`, error);
+    } finally {
+      handleButtonLoading(storeId, false);
+      setActionLoading(false);
+      window.location.reload();
+    }
+  };
+  const handleDeleteperson = async (deliveryPersonId) => {
+    if (!deliveryPersonId) {
+      console.error("Delivery Person ID is undefined or invalid");
+      return;
+    }
+    handleButtonLoading(deliveryPersonId, true);
+    setActionLoading(true);
+    try {
+      await axios.delete(`${BASE_URL}/removeDeliveryPerson/${deliveryPersonId}`);
+  
+      setDeliveryPersons((prevDeliveryPersons) =>
+        prevDeliveryPersons.filter((delivery) => delivery.id !== deliveryPersonId)
+      );
+      console.log(`Delivery Person ${deliveryPersonId} deleted successfully`);
+    } catch (error) {
+      console.error(`Error deleting delivery person ${deliveryPersonId}:`, error);
+    } finally {
+      handleButtonLoading(deliveryPersonId, false);
+      setActionLoading(false);
+      window.location.reload(); // Uncomment this line if you want to reload the page
     }
   };
 
@@ -228,28 +337,45 @@ export default function Landingpage() {
                               {store.verificationStatus || "NOT_VERIFIED"}
                             </span>
                           </td>
-                          <td>
-                          <button
-                            className={`verify-button ${
-                              store.verificationStatus === "VERIFIED"
-                                ? "revoke"
-                                : "" 
-                            }`}
-                            onClick={() =>
-                              store.verificationStatus === "VERIFIED"
-                                ? handleRevokeVerification(store.storeId)
-                                : handleVerifyStore(store.storeId)
-                            }
-                            disabled={buttonLoading[store.storeId]} // Disable button during loading
-                          >
-                            {buttonLoading[store.storeId] ? (
-                              <CircularProgress size={16} sx={{ color: "#fff" }} />
-                            ) : store.verificationStatus === "VERIFIED" ? (
-                              "Revoke Verification"
-                            ) : (
-                              "Verify"
-                            )}
-                          </button>
+                          <td className="btns">
+                            <button
+                              className={`verify-button ${
+                                store.verificationStatus === "VERIFIED"
+                                  ? "revoke"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                store.verificationStatus === "VERIFIED"
+                                  ? handleRevokeVerification(store.storeId)
+                                  : handleVerifyStore(store.storeId)
+                              }
+                              disabled={buttonLoading[store.storeId]} // Disable button during loading
+                            >
+                              {buttonLoading[store.storeId] ? (
+                                <CircularProgress
+                                  size={16}
+                                  sx={{ color: "#fff" }}
+                                />
+                              ) : store.verificationStatus === "VERIFIED" ? (
+                                "Revoke Verification"
+                              ) : (
+                                "Verify"
+                              )}
+                            </button>
+                            <button
+                              className="delete-button"
+                              onClick={() => handleDeleteStore(store.storeId)}
+                              disabled={buttonLoading[store.storeId]} // Disable button during loading
+                            >
+                              {buttonLoading[store.storeId] ? (
+                                <CircularProgress
+                                  size={16}
+                                  sx={{ color: "#fff" }}
+                                />
+                              ) : (
+                                "Delete"
+                              )}
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -267,7 +393,7 @@ export default function Landingpage() {
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Address</th>
-                        <th>Role</th>
+                        
                       </tr>
                     </thead>
                     <tbody>
@@ -277,7 +403,7 @@ export default function Landingpage() {
                           <td>{user.email}</td>
                           <td>{user.phone}</td>
                           <td>{user.address}</td>
-                          <td>{user.role}</td>
+                          
                         </tr>
                       ))}
                     </tbody>
@@ -294,6 +420,7 @@ export default function Landingpage() {
                         <th>Contact</th>
                         <th>Email</th>
                         <th>Status</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -302,7 +429,60 @@ export default function Landingpage() {
                           <td>{person.name}</td>
                           <td>{person.contactNo}</td>
                           <td>{person.email}</td>
-                          <td>{person.verificationStatus}</td>
+
+                          <td>
+                            <span
+                              className={`status-badge ${
+                                person.verificationStatus === "VERIFIED"
+                                  ? "active"
+                                  : "inactive"
+                              }`}
+                            >
+                              {person.verificationStatus || "NOT_VERIFIED"}
+                            </span>
+                          </td>
+                          <td className="btns">
+                            <button
+                              className={`verify-button ${
+                                person.verificationStatus === "VERIFIED"
+                                  ? "revoke"
+                                  : ""
+                              }`}
+                              onClick={() =>
+                                person.verificationStatus === "VERIFIED"
+                                  ? handleRevokepersonVerification(
+                                      person.deliveryPersonId
+                                    )
+                                  : handleVerifyperson(person.deliveryPersonId)
+                              }
+                              disabled={buttonLoading[person.deliveryPersonId]} // Disable button during loading
+                            >
+                              {buttonLoading[person.deliveryPersonId] ? (
+                                <CircularProgress
+                                  size={16}
+                                  sx={{ color: "#fff" }}
+                                />
+                              ) : person.verificationStatus === "VERIFIED" ? (
+                                "Revoke Verification"
+                              ) : (
+                                "Verify"
+                              )}
+                            </button>
+                            <button
+                              className="delete-button"
+                              onClick={() => handleDeleteperson(person.deliveryPersonId)}
+                              disabled={buttonLoading[person.deliveryPersonId]} // Disable button during loading
+                            >
+                              {buttonLoading[person.deliveryPersonId] ? (
+                                <CircularProgress
+                                  size={16}
+                                  sx={{ color: "#fff" }}
+                                />
+                              ) : (
+                                "Delete"
+                              )}
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
