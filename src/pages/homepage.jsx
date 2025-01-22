@@ -14,7 +14,6 @@ export default function Homepage() {
             <ul>
                 <li >Home</li>
                 <li>about us</li>
-                <li>products</li>
                 <li>services</li>
                 <li>contact us</li>
             </ul>

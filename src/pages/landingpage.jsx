@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import CircularProgress from "@mui/material/CircularProgress";
 import "./landingpage.css";
+import StoreDetailsModal from "../components/StoreDetailsModal";
 
 const BASE_URL = "http://192.168.1.48:8080/api/auth/admin";
 
@@ -21,6 +22,9 @@ export default function Landingpage() {
   const [activeTab, setActiveTab] = useState("stores");
   const [actionLoading, setActionLoading] = useState(false);
   const [buttonLoading, setButtonLoading] = useState({});
+  const [selectedStore, setSelectedStore] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -238,8 +242,18 @@ export default function Landingpage() {
     } finally {
       handleButtonLoading(deliveryPersonId, false);
       setActionLoading(false);
-      window.location.reload(); // Uncomment this line if you want to reload the page
+      window.location.reload(); 
     }
+  };
+
+  const handleOpenModal = (store) => {
+    setSelectedStore(store);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedStore(null);
+    setModalOpen(false);
   };
 
   return (
@@ -315,6 +329,7 @@ export default function Landingpage() {
                         <th>Contact</th>
                         <th>Address</th>
                         <th>license No</th>
+                        <th>Details</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>
@@ -326,6 +341,14 @@ export default function Landingpage() {
                           <td>{store.contactNo}</td>
                           <td>{store.storeAddress}</td>
                           <td>{store.licenseNo}</td>
+                          <td>
+                          <button
+                              className="view-details-button"
+                              onClick={() => handleOpenModal(store)}
+                            >
+                              View Details
+                            </button>
+                          </td>
                           <td>
                             <span
                               className={`status-badge ${
@@ -349,7 +372,7 @@ export default function Landingpage() {
                                   ? handleRevokeVerification(store.storeId)
                                   : handleVerifyStore(store.storeId)
                               }
-                              disabled={buttonLoading[store.storeId]} // Disable button during loading
+                              disabled={buttonLoading[store.storeId]} 
                             >
                               {buttonLoading[store.storeId] ? (
                                 <CircularProgress
@@ -365,7 +388,7 @@ export default function Landingpage() {
                             <button
                               className="delete-button"
                               onClick={() => handleDeleteStore(store.storeId)}
-                              disabled={buttonLoading[store.storeId]} // Disable button during loading
+                              disabled={buttonLoading[store.storeId]} 
                             >
                               {buttonLoading[store.storeId] ? (
                                 <CircularProgress
@@ -493,6 +516,11 @@ export default function Landingpage() {
           </>
         )}
       </main>
+      <StoreDetailsModal
+        open={modalOpen}
+        handleClose={handleCloseModal}
+        store={selectedStore}
+      />
     </div>
   );
 }
